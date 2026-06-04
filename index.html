@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS e IA en Selección de Personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --accent: #5c3bff;
+    --accent2: #ff4f5a;
+    --soft: #e8e2d6;
+    --muted: #7a7468;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    background: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(92,59,255,.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(92,59,255,.15) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridFloat 8s ease-in-out infinite;
+  }
+
+  @keyframes gridFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .cover-left {
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 4rem;
+    position: relative; z-index: 2;
+  }
+
+  .cover-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0; animation: fadeUp .6s .2s forwards;
+  }
+
+  .cover-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--white);
+    opacity: 0; animation: fadeUp .6s .4s forwards;
+  }
+
+  .cover-title span { color: var(--accent); }
+
+  .cover-subtitle {
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: #aaa;
+    max-width: 360px;
+    line-height: 1.6;
+    opacity: 0; animation: fadeUp .6s .6s forwards;
+  }
+
+  .cover-cta {
+    margin-top: 3rem;
+    display: inline-flex; align-items: center; gap: .75rem;
+    background: var(--accent);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: .9rem;
+    letter-spacing: .05em;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    width: fit-content;
+    opacity: 0; animation: fadeUp .6s .8s forwards;
+    transition: background .2s;
+  }
+  .cover-cta:hover { background: var(--accent2); }
+  .cover-cta svg { width: 16px; }
+
+  .cover-right {
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+    padding: 4rem;
+  }
+
+  .brain-visual {
+    width: 340px; height: 340px;
+    position: relative;
+    opacity: 0; animation: fadeIn 1s .5s forwards;
+  }
+
+  .brain-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid;
+    animation: spin linear infinite;
+  }
+  .ring1 { border-color: rgba(92,59,255,.6); animation-duration: 12s; }
+  .ring2 { inset: 20px; border-color: rgba(255,79,90,.4); border-style: dashed; animation-duration: 18s; animation-direction: reverse; }
+  .ring3 { inset: 50px; border-color: rgba(92,59,255,.3); animation-duration: 24s; }
+
+  .brain-core {
+    position: absolute;
+    inset: 80px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--white);
+    box-shadow: 0 0 60px rgba(92,59,255,.5);
+  }
+
+  .dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--accent2);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent2);
+    animation: orbit linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes orbit { to { transform: rotate(360deg); } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .cover-number {
+    position: absolute; bottom: 2rem; right: 4rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 8rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.04);
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 3rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1rem;
+    color: var(--white); letter-spacing: .05em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: .8rem; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: #aaa; text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 6rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: .7rem; font-weight: 700;
+    letter-spacing: .25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800; line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title em { font-style: normal; color: var(--accent); }
+
+  .section-body {
+    font-size: 1.05rem; font-weight: 300;
+    line-height: 1.8; color: #333;
+    max-width: 700px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 0 4rem;
+    opacity: .3;
+  }
+
+  /* ── WHAT IS ATS ── */
+  .ats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 3rem;
+    background: var(--ink);
+  }
+
+  .ats-card {
+    background: var(--paper);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background .25s;
+  }
+  .ats-card:hover { background: var(--soft); }
+  .ats-card::before {
+    content: attr(data-n);
+    position: absolute; top: -1rem; right: 1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 6rem; font-weight: 800;
+    color: rgba(92,59,255,.06);
+    line-height: 1;
+  }
+
+  .ats-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    margin-bottom: .75rem;
+  }
+  .ats-card p { font-size: .95rem; font-weight: 300; line-height: 1.7; color: #444; }
+
+  /* ── DARK SECTION ── */
+  .dark-section {
+    background: var(--ink);
+    color: var(--white);
+    padding: 6rem 4rem;
+  }
+  .dark-section .section-body { color: #ccc; }
+
+  .ai-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .ai-item {
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 2rem;
+    position: relative;
+    transition: border-color .25s, transform .25s;
+  }
+  .ai-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+
+  .ai-icon {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ai-item h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    margin-bottom: .6rem; color: var(--white);
+  }
+  .ai-item p { font-size: .88rem; font-weight: 300; line-height: 1.6; color: #aaa; }
+
+  /* ── BENEFITS & RISKS ── */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+    margin-top: 3rem;
+  }
+
+  .benefit-list, .risk-list { list-style: none; }
+  .benefit-list li, .risk-list li {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--soft);
+    font-size: .95rem; line-height: 1.6; font-weight: 300;
+  }
+  .benefit-list li span.icon { color: var(--accent); font-size: 1.2rem; flex-shrink: 0; }
+  .risk-list li span.icon { color: var(--accent2); font-size: 1.2rem; flex-shrink: 0; }
+
+  .col-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;
+  }
+
+  /* ── PROCESS TIMELINE ── */
+  .timeline {
+    margin-top: 3rem;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 22px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2));
+  }
+  .tl-item {
+    display: flex; gap: 2rem;
+    padding-bottom: 2.5rem;
+    position: relative;
+  }
+  .tl-dot {
+    width: 46px; height: 46px; flex-shrink: 0;
+    background: var(--ink);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: .85rem;
+    color: var(--accent);
+    position: relative; z-index: 1;
+  }
+  .tl-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem;
+  }
+  .tl-content p { font-size: .92rem; font-weight: 300; line-height: 1.6; color: #555; }
+
+  /* ── TOOLS TABLE ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .tool-card {
+    border: 1px solid var(--soft);
+    padding: 1.75rem;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .tool-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 24px rgba(92,59,255,.1);
+  }
+  .tool-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.1rem; margin-bottom: .3rem;
+  }
+  .tool-tag {
+    display: inline-block;
+    background: var(--soft);
+    font-size: .7rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: .2rem .6rem; margin-bottom: .75rem;
+    color: var(--muted);
+  }
+  .tool-card p { font-size: .88rem; font-weight: 300; line-height: 1.6; color: #555; }
+
+  /* ── QUOTE ── */
+  .quote-block {
+    background: var(--accent);
+    color: var(--white);
+    padding: 4rem;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-block::before {
+    content: '"';
+    position: absolute; top: -1rem; left: 3rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 12rem; font-weight: 800;
+    color: rgba(255,255,255,.1); line-height: 1;
+  }
+  .quote-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700; line-height: 1.3;
+    max-width: 700px; position: relative; z-index: 1;
+    margin: 0 auto;
+  }
+  .quote-author {
+    margin-top: 1.5rem; font-size: .85rem; font-weight: 300;
+    opacity: .8; position: relative; z-index: 1;
+    max-width: 700px; margin-left: auto; margin-right: auto;
+  }
+
+  /* ── CONCLUSIONS ── */
+  .conclusion-cards {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .conclusion-card {
+    background: var(--ink); color: var(--white);
+    padding: 2rem;
+  }
+  .conclusion-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: var(--accent); margin-bottom: .75rem;
+  }
+  .conclusion-card p { font-size: .9rem; font-weight: 300; line-height: 1.7; color: #ccc; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: #555;
+    padding: 3rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,.05);
+    font-size: .8rem;
+  }
+  footer strong { color: var(--white); font-family: 'Syne', sans-serif; font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .cover { grid-template-columns: 1fr; }
+    .cover-right { display: none; }
+    .ats-grid, .ai-list, .two-col, .tools-grid, .conclusion-cards { grid-template-columns: 1fr; }
+    .section, .dark-section { padding: 4rem 1.5rem; }
+    nav { padding: .9rem 1.5rem; }
+    .nav-links { display: none; }
+    .cover-left { padding: 3rem 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .divider { margin: 0 1.5rem; }
+    .quote-block { padding: 3rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover" id="inicio">
+  <div class="cover-grid"></div>
+  <div class="cover-left">
+    <p class="cover-tag">E-Book · Seminario de Recursos Humanos</p>
+    <h1 class="cover-title">ATS e <span>Inteligencia</span> Artificial en Selección</h1>
+    <p class="cover-subtitle">Cómo la tecnología está transformando la forma en que las organizaciones encuentran y eligen talento.</p>
+    <a href="#que-es" class="cover-cta">
+      Comenzar lectura
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="cover-right">
+    <div class="brain-visual">
+      <div class="brain-ring ring1"></div>
+      <div class="brain-ring ring2"></div>
+      <div class="brain-ring ring3"></div>
+      <div class="brain-core">IA</div>
+    </div>
+  </div>
+  <div class="cover-number">01</div>
+</section>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ATS<span>&</span>IA</div>
+  <ul class="nav-links">
+    <li><a href="#que-es">¿Qué es?</a></li>
+    <li><a href="#ia-seleccion">IA en Selección</a></li>
+    <li><a href="#beneficios">Beneficios & Riesgos</a></li>
+    <li><a href="#proceso">Proceso</a></li>
+    <li><a href="#herramientas">Herramientas</a></li>
+    <li><a href="#conclusiones">Conclusiones</a></li>
+  </ul>
+</nav>
+
+<!-- QUÉ ES ATS -->
+<div id="que-es">
+  <div class="section">
+    <p class="section-label">Capítulo 01</p>
+    <h2 class="section-title">¿Qué es un <em>ATS</em>?</h2>
+    <p class="section-body">Un <strong>Applicant Tracking System (ATS)</strong> o Sistema de Seguimiento de Candidatos es un software que automatiza y gestiona el proceso de reclutamiento, desde la publicación de ofertas hasta la selección del candidato final. Hoy en día, más del <strong>90% de las empresas Fortune 500</strong> utilizan un ATS como parte central de su proceso de selección.</p>
+  </div>
+</div>
+
+<div class="ats-grid">
+  <div class="ats-card" data-n="1">
+    <h3>📋 Gestión de Postulaciones</h3>
+    <p>Centraliza todos los CVs y formularios en un único lugar, permitiendo que los reclutadores tengan visibilidad completa del pipeline de candidatos en tiempo real.</p>
+  </div>
+  <div class="ats-card" data-n="2">
+    <h3>🔍 Filtrado Automático</h3>
+    <p>Analiza palabras clave, experiencia y requisitos del puesto para clasificar automáticamente los perfiles según su relevancia, ahorrando horas de revisión manual.</p>
+  </div>
+  <div class="ats-card" data-n="3">
+    <h3>📅 Coordinación de Entrevistas</h3>
+    <p>Automatiza la agenda de entrevistas, envía recordatorios y sincroniza calendarios entre reclutadores y candidatos sin intervención manual.</p>
+  </div>
+  <div class="ats-card" data-n="4">
+    <h3>📊 Reportes y Métricas</h3>
+    <p>Genera análisis sobre tiempo de contratación, fuentes de candidatos, tasas de conversión y efectividad de cada etapa del proceso de selección.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- IA EN SELECCIÓN -->
+<div class="dark-section" id="ia-seleccion">
+  <div style="max-width:1100px;margin:0 auto;">
+    <p class="section-label">Capítulo 02</p>
+    <h2 class="section-title" style="color:#fff;">La <em>Inteligencia Artificial</em> en el proceso de selección</h2>
+    <p class="section-body">La IA no solo automatiza tareas repetitivas: aprende, predice y mejora cada ciclo de reclutamiento. Estas son las principales aplicaciones que están redefiniendo el área de Recursos Humanos.</p>
+    <div class="ai-list">
+      <div class="ai-item">
+        <div class="ai-icon">🤖</div>
+        <h3>Parsing de CVs</h3>
+        <p>La IA extrae y estructura automáticamente la información de currículums en cualquier formato, eliminando la entrada manual de datos con alta precisión.</p>
+      </div>
+      <div class="ai-item">
+        <div class="ai-icon">🎯</div>
+        <h3>Match Inteligente</h3>
+        <p>Algoritmos de machine learning comparan el perfil del candidato con los requisitos del puesto para generar un score de compatibilidad objetivo.</p>
+      </div>
+      <div class="ai-item">
+        <div class="ai-icon">💬</div>
+        <h3>Chatbots de Selección</h3>
+        <p>Asistentes conversacionales que responden dudas de candidatos, aplican preguntas de pre-screening y gestionan la comunicación 24/7.</p>
+      </div>
+      <div class="ai-item">
+        <div class="ai-icon">🎙️</div>
+        <h3>Entrevistas por Video IA</h3>
+        <p>Plataformas que analizan expresiones faciales, tono de voz y lenguaje para evaluar competencias blandas de forma automatizada.</p>
+      </div>
+      <div class="ai-item">
+        <div class="ai-icon">📈</div>
+        <h3>Analítica Predictiva</h3>
+        <p>Modelos que anticipan la rotación, el rendimiento futuro y el fit cultural de los candidatos basándose en datos históricos de la organización.</p>
+      </div>
+      <div class="ai-item">
+        <div class="ai-icon">🌐</div>
+        <h3>Sourcing Automático</h3>
+        <p>La IA busca perfiles pasivos en LinkedIn, GitHub y otras plataformas y los contacta de forma personalizada y masiva sin intervención humana.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- BENEFICIOS Y RIESGOS -->
+<div id="beneficios">
+  <div class="section">
+    <p class="section-label">Capítulo 03</p>
+    <h2 class="section-title">Beneficios y <em>Riesgos</em></h2>
+    <p class="section-body">Como toda tecnología, los ATS con IA presentan ventajas significativas para las organizaciones, pero también desafíos éticos y operativos que no deben ignorarse.</p>
+    <div class="two-col">
+      <div>
+        <p class="col-title">✅ Beneficios</p>
+        <ul class="benefit-list">
+          <li><span class="icon">→</span><div>Reducción del <strong>tiempo de contratación</strong> hasta en un 50%, agilizando todo el ciclo de selección.</div></li>
+          <li><span class="icon">→</span><div><strong>Menor sesgo inconsciente</strong> al estandarizar la evaluación inicial con criterios objetivos y predefinidos.</div></li>
+          <li><span class="icon">→</span><div>Mejora de la <strong>experiencia del candidato</strong> con respuestas rápidas, seguimiento transparente y comunicación fluida.</div></li>
+          <li><span class="icon">→</span><div><strong>Escalabilidad</strong>: gestionar miles de aplicaciones simultáneamente sin aumentar el equipo de RRHH.</div></li>
+          <li><span class="icon">→</span><div>Generación de <strong>datos accionables</strong> para tomar decisiones estratégicas basadas en evidencia y no en intuición.</div></li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-title">⚠️ Riesgos</p>
+        <ul class="risk-list">
+          <li><span class="icon">→</span><div><strong>Sesgo algorítmico</strong>: si el modelo se entrena con datos históricos sesgados, puede perpetuar discriminaciones existentes.</div></li>
+          <li><span class="icon">→</span><div><strong>Exclusión de perfiles valiosos</strong> que no usan las palabras clave exactas aunque tengan las competencias requeridas.</div></li>
+          <li><span class="icon">→</span><div>Riesgo de <strong>deshumanización</strong> del proceso, perdiendo la calidez en el vínculo con los candidatos.</div></li>
+          <li><span class="icon">→</span><div>Problemas de <strong>privacidad y protección de datos</strong> al almacenar información sensible de los postulantes.</div></li>
+          <li><span class="icon">→</span><div><strong>Dependencia tecnológica</strong> y pérdida de criterio humano en decisiones que afectan a personas.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="quote-block">
+  <p class="quote-text">La IA no reemplaza al reclutador; le devuelve el tiempo para hacer lo que solo un humano puede: construir relaciones genuinas con el talento.</p>
+  <p class="quote-author">— Perspectiva actual en Gestión del Talento</p>
+</div>
+
+<!-- PROCESO -->
+<div id="proceso">
+  <div class="section">
+    <p class="section-label">Capítulo 04</p>
+    <h2 class="section-title">Cómo funciona el <em>proceso</em> con ATS + IA</h2>
+    <p class="section-body">El flujo de selección potenciado por IA sigue una secuencia lógica donde cada etapa agrega valor y reduce la fricción tanto para el candidato como para el equipo de RRHH.</p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">01</div>
+        <div class="tl-content">
+          <h3>Publicación de la oferta</h3>
+          <p>El ATS distribuye automáticamente el aviso en múltiples plataformas (LinkedIn, Indeed, portales universitarios) de forma simultánea y con una sola acción.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">02</div>
+        <div class="tl-content">
+          <h3>Recepción y parsing de CVs</h3>
+          <p>La IA lee, interpreta y estructura los datos de cada postulación: experiencia, habilidades, educación y más, sin importar el formato del archivo.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">03</div>
+        <div class="tl-content">
+          <h3>Pre-screening automatizado</h3>
+          <p>El sistema aplica filtros configurados por el reclutador y un chatbot puede hacer preguntas de descarte para validar requisitos excluyentes.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">04</div>
+        <div class="tl-content">
+          <h3>Ranking y scoring de candidatos</h3>
+          <p>Los algoritmos de machine learning generan un puntaje de compatibilidad para cada perfil, priorizando a los más adecuados para revisión humana.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">05</div>
+        <div class="tl-content">
+          <h3>Entrevistas y evaluaciones</h3>
+          <p>El sistema coordina entrevistas, puede aplicar tests automatizados y en algunos casos realiza entrevistas de video analizadas por IA.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">06</div>
+        <div class="tl-content">
+          <h3>Decisión y oferta</h3>
+          <p>Con todos los datos centralizados, el equipo toma la decisión final respaldada por analítica, y el ATS gestiona la oferta y onboarding inicial.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- HERRAMIENTAS -->
+<div id="herramientas">
+  <div class="section">
+    <p class="section-label">Capítulo 05</p>
+    <h2 class="section-title">Principales <em>herramientas</em> del mercado</h2>
+    <p class="section-body">Existe un ecosistema amplio de plataformas ATS con capacidades de IA. Estas son algunas de las más utilizadas a nivel global y regional.</p>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-name">Workday</div>
+        <span class="tool-tag">Enterprise</span>
+        <p>Suite completa de RRHH con módulo ATS y analítica predictiva integrada. Muy utilizado en grandes corporaciones multinacionales.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Greenhouse</div>
+        <span class="tool-tag">Mid-Market</span>
+        <p>Enfocado en reducir sesgos y mejorar la diversidad. Ofrece scorecards estructurados e integraciones con herramientas de evaluación.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Lever</div>
+        <span class="tool-tag">Mid-Market</span>
+        <p>Combina ATS con CRM de candidatos, permitiendo construir y nutrir pipelines de talento pasivo con automatizaciones y IA.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">HireVue</div>
+        <span class="tool-tag">Video IA</span>
+        <p>Especializado en entrevistas por video con análisis de IA para evaluar respuestas, tono y lenguaje no verbal de los candidatos.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">SmartRecruiters</div>
+        <span class="tool-tag">SaaS</span>
+        <p>Plataforma colaborativa de selección con marketplace de integraciones de IA para sourcing, matching y evaluación de candidatos.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Bumeran / Jobint</div>
+        <span class="tool-tag">Latam</span>
+        <p>Plataformas líderes en América Latina con funcionalidades ATS y matching inteligente adaptadas al mercado regional hispanohablante.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCLUSIONES -->
+<div class="dark-section" id="conclusiones">
+  <div style="max-width:1100px;margin:0 auto;">
+    <p class="section-label">Capítulo 06</p>
+    <h2 class="section-title" style="color:#fff;">Conclusiones</h2>
+    <p class="section-body">La adopción de ATS con IA no es una tendencia pasajera: es una transformación estructural del área de Recursos Humanos.</p>
+    <div class="conclusion-cards">
+      <div class="conclusion-card">
+        <h3>🔮 El futuro del reclutamiento</h3>
+        <p>La selección del talento será cada vez más data-driven. Las organizaciones que integren IA de forma ética y estratégica tendrán una ventaja competitiva real en la guerra por el talento.</p>
+      </div>
+      <div class="conclusion-card">
+        <h3>⚖️ El rol humano es insustituible</h3>
+        <p>La empatía, el juicio contextual y la construcción de relaciones siguen siendo atributos exclusivamente humanos. La IA optimiza el proceso, pero la decisión final debe tener un componente humano.</p>
+      </div>
+      <div class="conclusion-card">
+        <h3>📐 Implementación responsable</h3>
+        <p>Es fundamental auditar los algoritmos regularmente para detectar sesgos, garantizar la transparencia del proceso hacia los candidatos y cumplir con las normativas de protección de datos.</p>
+      </div>
+      <div class="conclusion-card">
+        <h3>📚 Aprendizaje continuo</h3>
+        <p>Los profesionales de RRHH deben desarrollar competencias digitales y de análisis de datos para trabajar en colaboración con estas herramientas y maximizar su valor.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <strong>ATS & IA en Selección de Personal</strong><br>
+    E-Book · Seminario de Recursos Humanos
+  </div>
+  <div>
+    Generado con fines académicos · 2026
+  </div>
+</footer>
+
+</body>
+</html>
